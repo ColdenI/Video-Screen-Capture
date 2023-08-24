@@ -67,8 +67,7 @@ namespace Video_Screen_Capture
         {
             if(isRecord)this.Stop();
             timerFrame.Dispose();
-            timerTime.Dispose();
-            
+            timerTime.Dispose();        
         }
 
         public void Start(string _fileName, Point _startPos, Point _finishPos)
