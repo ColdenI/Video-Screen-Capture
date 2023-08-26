@@ -13,7 +13,7 @@ namespace Video_Screen_Capture
     public partial class LoadForm : Form
     {
         private int _Progress = -120;
-        private bool isTest = true;
+        private bool isTest = false;
 
         public LoadForm()
         {

@@ -37,6 +37,26 @@
   <PropertyGroup>
     <ApplicationIcon>logo_2.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Accord, Version=3.8.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=MSIL">
       <HintPath>packages\Accord.3.8.0\lib\net462\Accord.dll</HintPath>
@@ -46,6 +66,15 @@
     </Reference>
     <Reference Include="Accord.Video.FFMPEG, Version=3.8.0.0, Culture=neutral, PublicKeyToken=fa1a88e29555ccf7, processorArchitecture=x86">
       <HintPath>packages\Accord.Video.FFMPEG.3.8.0\lib\net462\Accord.Video.FFMPEG.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge">
+      <HintPath>.\AForge.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Video">
+      <HintPath>.\AForge.Video.dll</HintPath>
+    </Reference>
+    <Reference Include="AForge.Video.DirectShow">
+      <HintPath>.\AForge.Video.DirectShow.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Win32.Registry, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Win32.Registry.4.7.0\lib\net461\Microsoft.Win32.Registry.dll</HintPath>
@@ -118,6 +147,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AboutForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AboutForm.Designer.cs">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="GetAreaForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -145,6 +180,21 @@
     <Compile Include="SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="WaitBuildForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WaitBuildForm.Designer.cs">
+      <DependentUpon>WaitBuildForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WebcamSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WebcamSettingsForm.Designer.cs">
+      <DependentUpon>WebcamSettingsForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="AboutForm.resx">
+      <DependentUpon>AboutForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="GetAreaForm.resx">
       <DependentUpon>GetAreaForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -166,6 +216,12 @@
     </Compile>
     <EmbeddedResource Include="SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WaitBuildForm.resx">
+      <DependentUpon>WaitBuildForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WebcamSettingsForm.resx">
+      <DependentUpon>WebcamSettingsForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -189,6 +245,22 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="logo_2.ico" />
+    <None Include="media\logo_1.png" />
+    <None Include="media\Free_Sample_By_Wix.jpg" />
+    <None Include="media\info.png" />
+    <None Include="media\butt_screenshot_ef.png" />
+    <None Include="media\butt_stopRec_ef.png" />
+    <None Include="media\butt_startRec_ef.png" />
+    <None Include="media\butt_playRec_ef.png" />
+    <None Include="media\butt_pauseRec_ef.png" />
+    <None Include="media\button_im_enFalse.png" />
+    <None Include="media\butt_screenshot.png" />
+    <None Include="media\butt_stopRec.png" />
+    <None Include="media\butt_startRec.png" />
+    <None Include="media\butt_small_2.png" />
+    <None Include="media\butt_small_1.png" />
+    <None Include="media\butt_playRec.png" />
+    <None Include="media\butt_pauseRec.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="packages\Accord.3.8.0\build\Accord.targets" Condition="Exists('packages\Accord.3.8.0\build\Accord.targets')" />

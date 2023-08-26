@@ -94,5 +94,137 @@ namespace Video_Screen_Capture.Properties {
                 this["markCursorSize"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int Webcam_deviseIndex {
+            get {
+                return ((int)(this["Webcam_deviseIndex"]));
+            }
+            set {
+                this["Webcam_deviseIndex"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool isUsingWebcam {
+            get {
+                return ((bool)(this["isUsingWebcam"]));
+            }
+            set {
+                this["isUsingWebcam"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool isUsingMic {
+            get {
+                return ((bool)(this["isUsingMic"]));
+            }
+            set {
+                this["isUsingMic"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int Mic_deviseIndex {
+            get {
+                return ((int)(this["Mic_deviseIndex"]));
+            }
+            set {
+                this["Mic_deviseIndex"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("300")]
+        public int Webcam_size_X {
+            get {
+                return ((int)(this["Webcam_size_X"]));
+            }
+            set {
+                this["Webcam_size_X"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int Webcam_position_X {
+            get {
+                return ((int)(this["Webcam_position_X"]));
+            }
+            set {
+                this["Webcam_position_X"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string standartPathSaveFastScreenshot {
+            get {
+                return ((string)(this["standartPathSaveFastScreenshot"]));
+            }
+            set {
+                this["standartPathSaveFastScreenshot"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("200")]
+        public int Webcam_size_Y {
+            get {
+                return ((int)(this["Webcam_size_Y"]));
+            }
+            set {
+                this["Webcam_size_Y"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int Webcam_position_Y {
+            get {
+                return ((int)(this["Webcam_position_Y"]));
+            }
+            set {
+                this["Webcam_position_Y"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool isViewIconOnTaskBar {
+            get {
+                return ((bool)(this["isViewIconOnTaskBar"]));
+            }
+            set {
+                this["isViewIconOnTaskBar"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool isView_TopWindows {
+            get {
+                return ((bool)(this["isView_TopWindows"]));
+            }
+            set {
+                this["isView_TopWindows"] = value;
+            }
+        }
     }
 }

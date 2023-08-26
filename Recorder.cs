@@ -2,10 +2,15 @@
 using NAudio.Wave;
 using System;
 using System.Diagnostics;
+using NAudio;
 using System.Drawing;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using AForge.Video;
+using AForge.Video.DirectShow;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Media;
 
 namespace Video_Screen_Capture
 {
@@ -20,9 +25,14 @@ namespace Video_Screen_Capture
         private bool isNotBuildVideoAndAudio = false;
         private Bitmap crpBMP;
         private Icon cursor = Icon.FromHandle(Cursor.Current.Handle);
+        private FilterInfoCollection CaptureDevices;
+        private VideoCaptureDevice FinalFrame;
+        private WaveIn waveIn_micRec;
+        private WaveFileWriter writer_micRec;
 
         private Stopwatch stopwatch_audio;
         private string _outputFileNameAudio;
+        private string _outputFileNameMic;
         private WasapiLoopbackCapture captureAudio;
 
 
@@ -31,10 +41,22 @@ namespace Video_Screen_Capture
         private Size sizeScreenRec = Screen.PrimaryScreen.WorkingArea.Size;
         private Point startPos = new Point(0, 0);
         private Point finishPos = (Point)Screen.PrimaryScreen.WorkingArea.Size;
+        private Image webcamImage;
+        //audio
         public bool isWriteAudio = true;
+        //cursor
         public bool isDrawCursor = true;
         public bool isMarkCursor = false;
         public int markCursorSize = 40;
+        //webcam
+        public bool isUsingWebcam = false;
+        public int WebcamDevIndex = 0;
+        public Size sizeWebcamIcon = new Size(300, 200);
+        public Point positionWebcamIcon = new Point(10, 10);
+        //mic
+        public bool isUsingMic = false;
+        public int micDevIndex = 0;
+
 
         public Bitmap BitmapNow { get { return bmp; } }
         public int BitRate { get { return _bitRate; } set { if (!isRecord) _bitRate = value; } }
@@ -73,6 +95,7 @@ namespace Video_Screen_Capture
         public void Start(string _fileName, Point _startPos, Point _finishPos)
         {
             _outputFileNameAudio = _fileName + ".wav";
+            _outputFileNameMic = _fileName + "_mic.wav";
             this._fileName = _fileName;
 
             #region Video
@@ -124,10 +147,48 @@ namespace Video_Screen_Capture
                 stopwatch_audio.Start();
             }
             #endregion
+
+            #region WebCam Video
+            if (isUsingWebcam)
+            {
+                CaptureDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+                try
+                {
+                    FinalFrame = new VideoCaptureDevice(CaptureDevices[WebcamDevIndex].MonikerString);
+                }
+                catch (System.ArgumentOutOfRangeException) 
+                { 
+                    FinalFrame = new VideoCaptureDevice(CaptureDevices[0].MonikerString); 
+                }
+                FinalFrame.NewFrame += new NewFrameEventHandler(FinalFrame_NewFrame);
+                FinalFrame.Start();
+                webcamImage = new Bitmap((Image)Properties.Resources.getAreaBG_1, sizeWebcamIcon);
+            }
+            #endregion
+
+            #region Miv Audio
+            if (isUsingMic)
+            {
+                waveIn_micRec = new WaveIn();
+                waveIn_micRec.DeviceNumber = micDevIndex;
+                waveIn_micRec.DataAvailable += waveIn_DataAvailable;
+                waveIn_micRec.WaveFormat = new WaveFormat(44100, 2);
+                writer_micRec = new WaveFileWriter(_outputFileNameMic, waveIn_micRec.WaveFormat);
+                waveIn_micRec.StartRecording();
+            }
+            #endregion
+
+            if(File.Exists("ss.wav"))
+                using (var soundPlayer = new SoundPlayer(@"ss.wav"))
+                {
+                    soundPlayer.Play(); // can also use soundPlayer.PlaySync()
+                }
         }
 
         public void Stop()
         {
+            timerTime.Stop();
+
             #region Video
             writer.Close();
             isRecord = false;
@@ -143,10 +204,18 @@ namespace Video_Screen_Capture
             }
             #endregion
 
-            timerTime.Stop();
-
-            if (!isNotBuildVideoAndAudio && isWriteAudio)
+            WaitBuildForm wf = new WaitBuildForm();
+            wf.Show();
+            wf.Update();
+            #region Mic Audio
+            if (isUsingMic && !isNotBuildVideoAndAudio)
             {
+                waveIn_micRec.StopRecording();
+                waveIn_micRec.Dispose();
+                waveIn_micRec = null;
+                writer_micRec.Close();
+                writer_micRec = null;
+
                 if (File.Exists(_fileName + ".mp4")) File.Delete(_fileName + ".mp4");
 
                 ProcessStartInfo startInfo = new ProcessStartInfo()
@@ -157,7 +226,45 @@ namespace Video_Screen_Capture
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     //Arguments = string.Format(" -i {0} -i {1} -shortest {2} -y", @"video.avi", @"video.avi.wav", @"result.avi")
-                    Arguments = $" -i {_fileName} -i {_outputFileNameAudio} -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k {_fileName + ".mp4"}"
+                    Arguments = $" -i {_fileName} -i {_outputFileNameMic} -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k {_fileName + ".mp4"}"
+                };
+
+                using (Process exeProcess = Process.Start(startInfo))
+                {
+                    Console.WriteLine("Start build mic");
+                    //debug
+                    string StdOutVideo = exeProcess.StandardOutput.ReadToEnd();
+                    string StdErrVideo = exeProcess.StandardError.ReadToEnd();
+                    //
+
+                    exeProcess.WaitForExit();
+                    exeProcess.Close();
+                    Thread.Sleep(1000);
+                    //exeProcess.Kill();
+                    Console.WriteLine("end build mic");
+                }
+
+            }
+            #endregion
+
+
+            if (!isNotBuildVideoAndAudio && isWriteAudio && !isUsingMic)
+            {
+                if (File.Exists(_fileName + ".mp4") && !isUsingMic) File.Delete(_fileName + ".mp4");
+                string arg = "";
+                if (isUsingMic) arg = $" -i {_fileName + ".mp4"} -i {_outputFileNameAudio} -map 0 -map 1:a -c:v copy -shortest {_fileName + "_.mp4"}";
+                else arg = $" -i {_fileName} -i {_outputFileNameAudio} -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k {_fileName + ".mp4"}";
+
+
+                ProcessStartInfo startInfo = new ProcessStartInfo()
+                {
+                    CreateNoWindow = true,
+                    FileName = @"bin\ffmpeg.exe",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    //Arguments = $" -i {_fileName} -i {_outputFileNameAudio} -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k {_fileName + ".mp4"}"
+                    Arguments = arg
                 };
 
                 using (Process exeProcess = Process.Start(startInfo))
@@ -175,11 +282,22 @@ namespace Video_Screen_Capture
                     Console.WriteLine("end build");
                 }
 
-                if (File.Exists(_fileName)) File.Delete(_fileName);
-                //if (isWriteAudio && File.Exists(_outputFileNameAudio)) File.Delete(_outputFileNameAudio);
-                //Console.WriteLine(Path.GetDirectoryName(_fileName));
             }
 
+            if(FinalFrame != null)
+                if(FinalFrame.IsRunning)
+                    FinalFrame.Stop();
+
+            //if (File.Exists(_fileName + ".mp4") && isUsingMic) File.Delete(_fileName + ".mp4");
+            if (File.Exists(_fileName) && (isUsingMic || isWriteAudio)) File.Delete(_fileName);
+
+            for(int i = 0; i < 100; i++)
+            {
+                wf.progressBar.Value = i;
+                wf.Update();
+                Thread.Sleep(10);
+            }
+            wf.Close();
             Console.WriteLine(Path.GetDirectoryName(_fileName));
         } 
 
@@ -206,6 +324,7 @@ namespace Video_Screen_Capture
             bmp = new Bitmap(Screen.PrimaryScreen.WorkingArea.Width, Screen.PrimaryScreen.WorkingArea.Height);
             gr = Graphics.FromImage(bmp);
             gr.CopyFromScreen(0, 0, 0, 0, new System.Drawing.Size(bmp.Width, bmp.Height));
+            gr.Dispose();
             return bmp;
         }
 
@@ -234,11 +353,54 @@ namespace Video_Screen_Capture
             }
 
             crpBMP = bmp.Clone(new Rectangle(startPos, sizeScreenRec), bmp.PixelFormat);
+
+            if (isUsingWebcam)
+            {
+                var gr_ = Graphics.FromImage(crpBMP);
+                gr_.DrawImage(webcamImage, positionWebcamIcon);
+                gr_.Dispose();
+            }
+
+            
             
             writer.WriteVideoFrame(crpBMP);
             crpBMP.Dispose();
         }
-        
+
+        private void FinalFrame_NewFrame(object sender, NewFrameEventArgs eventArgs)
+        {
+            // Получаем изображение с веб-камеры
+            Image image = (Bitmap)eventArgs.Frame.Clone();
+
+            // Определяем размер PictureBox
+            int pictureBoxWidth = sizeWebcamIcon.Width;
+            int pictureBoxHeight = sizeWebcamIcon.Height;
+
+            // Определяем размер полученного изображения
+            int imageWidth = image.Width;
+            int imageHeight = image.Height;
+
+            // Масштабируем изображение, если оно не помещается в PictureBox
+            if (imageWidth > pictureBoxWidth || imageHeight > pictureBoxHeight)
+            {
+                float aspectRatio = Math.Min((float)pictureBoxWidth / imageWidth, (float)pictureBoxHeight / imageHeight);
+                int newWidth = (int)(imageWidth * aspectRatio);
+                int newHeight = (int)(imageHeight * aspectRatio);
+                Image scaledImage = image.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
+                image.Dispose();
+                image = scaledImage;
+            }
+
+            // Отображаем изображение на PictureBox
+            webcamImage = image;
+        }
+
+        void waveIn_DataAvailable(object sender, WaveInEventArgs e)
+        {
+            writer_micRec.WriteData(e.Buffer, 0, e.BytesRecorded);
+        }
+
+
         private void timerTime_tick(object sender, EventArgs e)
         {
             sec++;
